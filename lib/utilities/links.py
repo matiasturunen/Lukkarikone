@@ -1,35 +1,38 @@
 # ------------------------------------------------------------------------------
-# Name:        linkutility.py
-# Purpose:     
+# Name:        links.py
+# Purpose:     Utility functions for handling and finding links
 #
 # Author:      Matias
 #
 # Created:     25.09.2015
 # Copyright:   (c) Matias 2015
 # ------------------------------------------------------------------------------
-import urllib.request as request
-from static.htmldom import htmldom
 import re
+from lib.static.htmldom import htmldom
+from lib.models import Link
+from lib.utilities import html
 
 
-def getScheludeLinks():
+def getScheludeLinks(scheludeListUrl):
 
-
+    # rough CSS path to links, eases future processing
     linksCssPath = [
         "div",
         "section",
         "p",
         "a"
     ]
-    # TODO: make it use configfiles instead of static urls
-    response = request.urlopen("https://uni.lut.fi/fi/lukujarjestykset1")
-    html = response.read()
-    # convert html to string (originally bytes)
-    html = html.decode(encoding='UTF-8')
+    
+    page = html.getHTML(scheludeListUrl)
+    if(page == ""):
+        print("Empty page")
 
     # create htmldom element with html we just got
-    dom = htmldom.HtmlDom().createDom(html)
+    dom = htmldom.HtmlDom().createDom(page)
     
+    # delete page to save some memory
+    del(page)
+
     findString = " ".join( linksCssPath )
 
     # get all link items
@@ -39,10 +42,13 @@ def getScheludeLinks():
     # filter out only valid links
     validLinks = filter(isValidLink, linkitems)
 
+    result = []
+
+    # add links to result list as Link objects
     for link in validLinks:
-        print("URL:", getLinkUrl(link))
-        print("Name:", getLinkName(link))
-        print("")
+        result.append( Link( getLinkName(link), getLinkUrl(link) ) )
+
+    return result
 
 def isValidLink(linkString):
     # check if given string contains valid link 
@@ -64,5 +70,3 @@ def getLinkName(linkString):
     if (match):
         return match.group(2)
     return False
-
-getScheludeLinks()
