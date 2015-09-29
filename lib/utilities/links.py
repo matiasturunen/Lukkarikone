@@ -11,6 +11,7 @@ import re
 from lib.static.htmldom import htmldom
 from lib.models import Link
 from lib.utilities import html
+from lib.utilities import debug
 
 
 def getScheludeLinks(scheludeListUrl):
@@ -27,20 +28,11 @@ def getScheludeLinks(scheludeListUrl):
     if(page == ""):
         print("Empty page")
 
-    # create htmldom element with html we just got
-    dom = htmldom.HtmlDom().createDom(page)
-    
-    # delete page to save some memory
-    del(page)
-
     findString = " ".join( linksCssPath )
-
-    # get all link items
-    linkitems = dom.find( findString ).html()
-    linkitems = linkitems.split("</a>")
+    linkItems = html.listifyHTML(page, "</a>", findString)
 
     # filter out only valid links
-    validLinks = filter(isValidLink, linkitems)
+    validLinks = filter(isValidLink, linkItems)
 
     result = []
 
@@ -50,10 +42,12 @@ def getScheludeLinks(scheludeListUrl):
 
     return result
 
+
 def isValidLink(linkString):
     # check if given string contains valid link 
     linkPattern = r'(")(\/c\/document_library\/get_file\?.*)" '
     return re.search(linkPattern, linkString)
+
 
 def getLinkUrl(linkString):
     # return link url from linkstring, if its valid. False otherwise
@@ -63,10 +57,18 @@ def getLinkUrl(linkString):
         return match.group(2)
     return False
 
+
 def getLinkName(linkString):
     # return link name from linkstring, if its valid. False otherwise
-    pattern = r'("\/c\/document_library\/get_file\?.*">)\s*(.*)'
-    match = re.search(pattern, linkString)
+    pattern1 = r'("\/c\/document_library\/get_file\?.*">)\s*((.|\s)*)'
+    match = re.search(pattern1, linkString)
     if (match):
-        return match.group(2)
+        # match found
+        # now strip out excess <br> tags, if any.
+        # this will actually strip ANY tags remaining
+        linkname = match.group(2)
+        pattern2 = r'((<[^>]*>)|\s)*((.|\s)*)'
+        match2 = re.search(pattern2, linkname)
+
+        return match2.group(3)
     return False

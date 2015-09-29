@@ -26,7 +26,7 @@ def main():
             print("Skipping invalid page")
             continue
         print(item.name)
-        print(scheludePage)
+        #print(scheludePage)
         print("")
 
 

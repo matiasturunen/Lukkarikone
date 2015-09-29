@@ -9,6 +9,7 @@
 # ------------------------------------------------------------------------------
 import urllib.request as request
 import re
+from lib.static.htmldom import htmldom
 
 
 def getHTML(url, encodeWith="UTF-8"):
@@ -22,7 +23,7 @@ def getHTML(url, encodeWith="UTF-8"):
             changed to other encodings as well (not tested), or left to be empty
             string if no encoding is needed (will return bytes instead)
 
-        will return empty string if page is not in html
+        will return False if page is not in html
     """
     response = request.urlopen(url)
     html = response.read()
@@ -36,6 +37,7 @@ def getHTML(url, encodeWith="UTF-8"):
         try:
             html = html.decode(encoding=encodeWith)
         except UnicodeError:
+            # just catch error and show message in console
             print("UnicodeError happened.")
 
     return html
@@ -44,19 +46,43 @@ def getHTML(url, encodeWith="UTF-8"):
 def checkIfHTML(data, encodeWith="UTF-8"):
     """Check if given data is actually html and not something like PDF
     """
+
+    # remove all leading spaces
+    data = data.lstrip()
+
     try:
-        # '<!DOCTYPE' can fit in 9 chars, 
-        # but it seems that there can be some leading spaces
-        firstchars = data[0:13].decode(encoding=encodeWith)
-        print ("chars",firstchars)
+        firstchars = data[0:9].decode(encoding=encodeWith)
+        print ("chars: " + firstchars)
 
         # check that data starts with doctype definition
-        pattern = r'\s*<!DOCTYPE.*'
-        if ( not re.search(pattern, firstchars)):
+        if (firstchars != "<!DOCTYPE"):
             return False
     except UnicodeError:
         return False
 
     return True
 
-        
+
+def listifyHTML(pageHTML, splitRule, path=None):
+    """Create list from html using given rule
+
+        Keyword arguments:
+        pageHTML -- raw HTML. Must begin with DOCTYPE definition
+        splitRule -- Set of characters to define where to split.
+            This uses python's split() function
+        path -- CSS path which narrows down section we are going
+            to be splitting into list
+            must be in string format
+    """
+    # create htmldom element from the page
+    dom = htmldom.HtmlDom().createDom(pageHTML)
+
+    itemList = pageHTML
+    print(path)
+    if ( path != None ):
+        # narrowed down version of html page
+        itemList = dom.find( path ).html()
+
+    itemList = itemList.split( splitRule )
+
+    return itemList
