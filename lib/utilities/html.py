@@ -52,7 +52,6 @@ def checkIfHTML(data, encodeWith="UTF-8"):
 
     try:
         firstchars = data[0:9].decode(encoding=encodeWith)
-        print ("chars: " + firstchars)
 
         # check that data starts with doctype definition
         if (firstchars != "<!DOCTYPE"):
@@ -78,7 +77,6 @@ def listifyHTML(pageHTML, splitRule, path=None):
     dom = htmldom.HtmlDom().createDom(pageHTML)
 
     itemList = pageHTML
-    print(path)
     if ( path != None ):
         # narrowed down version of html page
         itemList = dom.find( path ).html()
@@ -86,3 +84,12 @@ def listifyHTML(pageHTML, splitRule, path=None):
     itemList = itemList.split( splitRule )
 
     return itemList
+
+
+def stripTags(string):
+    """Remove all HTML or XML like tags from given string
+    """
+
+    # match everything that starts with < and ends to >
+    pattern = r'<[^>]*>'
+    return re.sub(pattern, "", string)

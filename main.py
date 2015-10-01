@@ -15,19 +15,23 @@ from lib.models import Link
 uniURL = "https://uni.lut.fi"
 scheludeListURL = uniURL + "/fi/lukujarjestykset1"
 
-def main():
+def getScheludes():
     # get links to schelude pages
     linklist = links.getScheludeLinks(scheludeListURL)
-    debug.printList(linklist)
 
+    scheludes = []
     for item in linklist:
         scheludePage = html.getHTML(uniURL + item.url)
-        if( not scheludePage):
+        if( not scheludePage ):
             print("Skipping invalid page")
             continue
         print(item.name)
-        #print(scheludePage)
-        print("")
+
+        
+            
+
+def main():
+    scheludes = getScheludes()
 
 
 if __name__ == '__main__':

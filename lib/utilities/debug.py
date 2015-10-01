@@ -20,3 +20,4 @@ def printList(listToPrint, emptyline=True):
         print(item)
         if emptyline:
             print("")
+

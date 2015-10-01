@@ -64,11 +64,9 @@ def getLinkName(linkString):
     match = re.search(pattern1, linkString)
     if (match):
         # match found
-        # now strip out excess <br> tags, if any.
-        # this will actually strip ANY tags remaining
+        # now strip all remaining tags, if any. 
+        # Also remove all excess whitespaces
         linkname = match.group(2)
-        pattern2 = r'((<[^>]*>)|\s)*((.|\s)*)'
-        match2 = re.search(pattern2, linkname)
+        return html.stripTags(linkname).strip()
 
-        return match2.group(3)
     return False
