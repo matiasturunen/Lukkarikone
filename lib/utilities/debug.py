@@ -17,7 +17,11 @@ def printList(listToPrint, emptyline=True):
         emptyline -- Will there be empty line after each item in list
     """
     for item in listToPrint:
-        print(item)
-        if emptyline:
-            print("")
+        try:
+            print(item)
+            if emptyline:
+                print("")
+        except UnicodeError as e:
+            print("Skipping print due error", e)
+        
 
