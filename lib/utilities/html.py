@@ -67,8 +67,8 @@ def listifyHTML(pageHTML, splitRule, path=None):
 
         Keyword arguments:
         pageHTML -- raw HTML. Must begin with DOCTYPE definition
-        splitRule -- Set of characters to define where to split.
-            This uses python's split() function
+        splitRule -- Set of characters or regexp to define where to split.
+            If rule is regexp, it must be in compiled format
         path -- CSS path which narrows down section we are going
             to be splitting into list
             must be in string format
@@ -81,7 +81,11 @@ def listifyHTML(pageHTML, splitRule, path=None):
         # narrowed down version of html page
         itemList = dom.find( path ).html()
 
-    itemList = itemList.split( splitRule )
+    if(isinstance(splitRule, re._pattern_type)):
+        # splitrule is regex
+        itemList = re.split(splitRule, itemList)
+    else:
+        itemList = itemList.split( splitRule )
 
     return itemList
 
