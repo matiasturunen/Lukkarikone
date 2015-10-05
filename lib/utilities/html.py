@@ -73,8 +73,12 @@ def listifyHTML(pageHTML, splitRule, path=None):
             to be splitting into list
             must be in string format
     """
-    # create htmldom element from the page
-    dom = htmldom.HtmlDom().createDom(pageHTML)
+    try:
+        # create htmldom element from the page
+        dom = htmldom.HtmlDom().createDom(pageHTML)
+    except Exception as e:
+        print (e)
+        return []
 
     itemList = pageHTML
     if ( path != None ):
