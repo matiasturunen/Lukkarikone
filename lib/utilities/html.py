@@ -10,6 +10,8 @@
 import urllib.request as request
 import re
 from lib.static.htmldom import htmldom
+from lib.utilities import debug
+from bs4 import BeautifulSoup
 
 
 def getHTML(url, encodeWith="UTF-8"):
@@ -101,3 +103,4 @@ def stripTags(string):
     # match everything that starts with < and ends to >
     pattern = r'<[^>]*>'
     return re.sub(pattern, "", string)
+

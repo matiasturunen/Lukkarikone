@@ -21,7 +21,8 @@ scheludeListURL = uniURL + "/fi/lukujarjestykset1"
 def main():
     local = True    # set False to load scheludes from internet
     if ( local ):
-        sche = scheludes.getLocalScheludes()
+        sche = scheludes.getLocalScheludesHTML()
+        scheludes.saveScheludes(sche)
     else:
         sche = scheludes.getScheludes(uniURL, scheludeListURL)
 
