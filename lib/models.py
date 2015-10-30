@@ -89,17 +89,19 @@ class Lesson:
     lessonType = ""     # lesson type
     period = 0          # period number
     week = 0            # week number
-    dayOfWeek = None    # Day enum
+    dayOfWeek = None    # Day
     startTime = 0       # starting hour
     endTime = 0         # ending houd
     room = None         # room name or number
     description = None  # description
+    name = ""
 
     def __init__(self):
         self.week = 0
 
     def __str__(self, indent=0):
         r = ""
+        r += "{1}Name: {0}\n".format( self.name, " "*indent )
         r += "{1}Type: {0}\n".format( self.lessonType, " "*indent )
         r += "{1}Period: {0}\n".format( self.period, " "*indent )
         r += "{1}Weeks: {0}\n".format( self.week, " "*indent )
@@ -120,6 +122,7 @@ class Lesson:
             "startTime": self.startTime,
             "endTime": self.endTime,
             "room": self.room,
-            "description": self.description
+            "description": self.description,
+            "name": self.name
         }
         return arr

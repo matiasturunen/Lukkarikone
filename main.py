@@ -19,9 +19,11 @@ scheludeListURL = uniURL + "/fi/lukujarjestykset1"
 
 def printMenu():
     print("""
-    1) Load scheludes to memory
-    2) Save scheludes to disk
-    3) search course
+    1) Load local scheludes to memory (HTML, very slow)
+    2) Load web scheludes to memory (HTML, very slow)
+    3) Load local scheludes to memory (JSON, almost instant)
+    4) Save scheludes to disk
+    5) search course
     0) Exit
     """)
 
@@ -35,13 +37,25 @@ def menu():
             break
         elif (option == "1"):
             print("Loading...")
+            sche = scheludes.getLocalScheludesHTML()
+            print("Loading complete!")
+
+        elif (option == "2"):
+            print("Loading...")
+            sche = scheludes.getScheludes(uniURL, scheludeListURL)
+            print("Loading complete!")
+
+        elif (option == "3"):
+            print("Loading...")
             sche = scheludes.getLocalScheludesJSON()
             print("Loading complete!")
-        elif (option == "2"):
+
+        elif (option == "4"):
             print("Saving...")
             scheludes.saveScheludes(sche)
             print("Saving complete!")
-        elif (option == "3"):
+
+        elif (option == "5"):
             print ("Rule can be course name or code")
             rule = input("Give search rule: ")
             print("Searching...")

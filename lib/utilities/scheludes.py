@@ -79,6 +79,7 @@ def getLocalScheludesHTML():
     
     return scheludeList
 
+
 def getLocalScheludesJSON():
     """Get all locally stored scheludes that are in JSON format
     """
@@ -94,6 +95,7 @@ def getLocalScheludesJSON():
         scheludeList.append(s)
 
     return scheludeList
+
 
 def getScheludes(uniURL, scheludeListURL):
     """Get scheludes from internet
@@ -124,6 +126,7 @@ def getScheludes(uniURL, scheludeListURL):
         scheludeList.append( parseScheludeHTML( scheludePage, item.name ) )
 
     return scheludeList
+
 
 def saveScheludes(scheludes):
     """Save all scheludes in custom format
@@ -181,8 +184,8 @@ def parseScheludeHTML(scheludePage, scheludeName):
         tableRows = table.split("|")
 
         rowNumber = 0
-        courseCode = None
-        courseName = None
+        courseCode = ""
+        courseName = ""
         lessons = []
         for tableRow in tableRows:  # each row is one lesson
             tableCells = tableRow.split(";")
@@ -207,16 +210,18 @@ def parseScheludeHTML(scheludePage, scheludeName):
                 # we need all eight table columns
                 continue
 
+            # get course name and code only once
+            if (courseCode == ""):
+                courseCode = getCourseNameAndCode(tableCells[0])["code"]
+            if (courseName == ""):
+                courseName = getCourseNameAndCode(tableCells[0])["name"]
 
-            if (courseCode == None):
-                courseCode = tableCells[0].split(" - ")[0]
-            if (courseName == None):
-                if(" - " in tableCells[0]):
-                    courseName = tableCells[0].split(" - ")[1]
+            nameAndType = getLessonTypeAndName(tableCells[0])
 
             # create new lesson
             lesson = Lesson()
-            lesson.lessonType = ""
+            lesson.lessonType = nameAndType["type"]
+            lesson.name = nameAndType["name"]
             lesson.period = tableCells[1]
             lesson.week = tableCells[2]
             lesson.dayOfWeek = tableCells[3]
@@ -236,6 +241,7 @@ def parseScheludeHTML(scheludePage, scheludeName):
     schelude.courses = courseList
 
     return schelude
+
 
 def parseScheludeJSON(jsonString):
     """Convert schelude json back to objects
@@ -264,6 +270,7 @@ def parseScheludeJSON(jsonString):
             lessonObj.endTime = lesson["endTime"]
             lessonObj.room = lesson["room"]
             lessonObj.description = lesson["description"]
+            #lessonObj.name = lesson["name"]
 
             lessonList.append(lessonObj)
 
@@ -283,6 +290,48 @@ def parseScheludeJSON(jsonString):
     return schelude
 
 
+def getLessonTypeAndName(lessonNameCode):
+    """Extracts lesson type and name from string
+    """
+    if (" - " in lessonNameCode):
+        splits = lessonNameCode.split(" - ")
+        name = splits[1]
+    else:
+        name = lessonNameCode
+
+    if ("/" in name):
+        splits2 = name.split("/")
+        name = splits2[0]
+        lessonType = splits2[1]
+    else:
+        lessonType = ""
+
+    return {
+        "type": lessonType,
+        "name": name
+    }
+
+
+def getCourseNameAndCode(lessonNameCode):
+    """Extracts course name and code from string
+    """
+    if (" - " in lessonNameCode):
+        splits = lessonNameCode.split(" - ")
+        code = splits[0]
+        name = splits[1]
+    else:
+        code = ""
+        name = lessonNameCode
+
+    if ("/" in name):   # name contains lesson type, what we want to remove
+        name = name.split("/")[0]
+
+    return {
+        "name": name,
+        "code": code
+    }
+
+
 def findCourses(searchRule, schelude):
     """Search for course in specific schelude
 
@@ -300,6 +349,7 @@ def findCourses(searchRule, schelude):
 
     return matched
 
+
 def findAllCourses(searchRule, scheludes):
     """Search for courses in all scheludes
 
@@ -314,3 +364,4 @@ def findAllCourses(searchRule, scheludes):
         matched.extend(courses)
 
     return matched
+
