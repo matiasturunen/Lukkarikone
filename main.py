@@ -35,7 +35,7 @@ def menu():
             break
         elif (option == "1"):
             print("Loading...")
-            sche = scheludes.getLocalScheludesHTML()
+            sche = scheludes.getLocalScheludesJSON()
             print("Loading complete!")
         elif (option == "2"):
             print("Saving...")

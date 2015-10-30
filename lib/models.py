@@ -54,7 +54,7 @@ class Course:
     name = ""
     lessons = [] # list of Lesson objects
 
-    def __init__(self, code, name=""):
+    def __init__(self, code="", name=""):
         self.code = code
         self.name = name
 

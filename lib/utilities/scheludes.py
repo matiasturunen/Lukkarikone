@@ -16,11 +16,13 @@ from bs4 import BeautifulSoup
 import json
 
 
-def getLocalScheludeNames():
+def getLocalScheludeNames(folder, prefix=""):
     """Get all locally stored schelude names
+
+        Keyword arguments:
+        folder -- Folder that contains the files
+        prefix -- Filename prefix
     """
-    folder = "scheludes"
-    prefix = "scheludePage_"
 
     prefLen = len(prefix)
 
@@ -40,11 +42,13 @@ def getLocalScheludeNames():
     return scheludeNames
 
 
-def getLocalScheludePage(scheludeName):
-    """Get locally saved html version of schelude
+def getLocalScheludeFile(scheludeName, folder, prefix=""):
+    """Get locally saved schelude file contents
+
+        Keyword arguments:
+        folder -- Folder that contains the files
+        prefix -- Filename prefix
     """
-    folder = "scheludes/"
-    prefix = "scheludePage_"
 
     schelude = ""
     #print ("Loading local file")
@@ -61,16 +65,34 @@ def getLocalScheludePage(scheludeName):
 def getLocalScheludesHTML():
     """Get all locally stored scheludes that are in HTML format
     """
+
+    folder = "scheludes/"
+    prefix = "scheludePage_"
+
     scheludeList = []
 
-    names = getLocalScheludeNames()
+    names = getLocalScheludeNames(folder, prefix)
     for name in names:
-        page = getLocalScheludePage( name )
-        #print("\n" + name + "\n")
-        s = objectifySchelude( page, name )
-        #print(json.dumps(s.toDict(), indent=2))
-        scheludeList.append( s )
+        page = getLocalScheludeFile( name, folder, prefix )
+        s = parseScheludeHTML( page, name )
+        scheludeList.append(s)
     
+    return scheludeList
+
+def getLocalScheludesJSON():
+    """Get all locally stored scheludes that are in JSON format
+    """
+
+    folder = "scheludes/objects/"
+
+    scheludeList = []
+
+    names = getLocalScheludeNames(folder)
+    for name in names:
+        jsonfile = getLocalScheludeFile(name, folder)
+        s = parseScheludeJSON( jsonfile )
+        scheludeList.append(s)
+
     return scheludeList
 
 def getScheludes(uniURL, scheludeListURL):
@@ -99,7 +121,7 @@ def getScheludes(uniURL, scheludeListURL):
         except Exception as e:
             pass
 
-        scheludeList.append( objectifySchelude( scheludePage, item.name ) )
+        scheludeList.append( parseScheludeHTML( scheludePage, item.name ) )
 
     return scheludeList
 
@@ -117,10 +139,10 @@ def saveScheludes(scheludes):
 def saveSchelude(schelude):    
     """Save single schelude in custom format
     """
-    pass
+    schelude.saveToFile()
 
 
-def objectifySchelude(scheludePage, scheludeName):
+def parseScheludeHTML(scheludePage, scheludeName):
     """Convert html type scheludepage to objects for easier use
         This is basically a parser
 
@@ -214,6 +236,52 @@ def objectifySchelude(scheludePage, scheludeName):
     schelude.courses = courseList
 
     return schelude
+
+def parseScheludeJSON(jsonString):
+    """Convert schelude json back to objects
+
+        Keyword arguments:
+        jsonString -- json formatted string containing schelude values
+    """
+
+    jsonObj = json.loads(jsonString)
+
+    courseList = []
+    for courseId in jsonObj["courses"]:
+        course = jsonObj["courses"][courseId]
+
+        lessonList = []
+        for lessonId in course["lessons"]:
+            lesson = course["lessons"][lessonId]
+
+            # create lesson
+            lessonObj = Lesson()
+            lessonObj.lessonType = ""
+            lessonObj.period = lesson["period"]
+            lessonObj.week = lesson["week"]
+            lessonObj.dayOfWeek = lesson["dayOfWeek"]
+            lessonObj.startTime = lesson["startTime"]
+            lessonObj.endTime = lesson["endTime"]
+            lessonObj.room = lesson["room"]
+            lessonObj.description = lesson["description"]
+
+            lessonList.append(lessonObj)
+
+        # create course
+        courseObj = Course()
+        courseObj.name = course["name"]
+        courseObj.code = course["code"]
+        courseObj.lessons = lessonList
+        
+        courseList.append(courseObj)
+
+    # create schelude
+    schelude = Schelude()
+    schelude.name = jsonObj["name"]
+    schelude.courses = courseList
+
+    return schelude
+
 
 def findCourses(searchRule, schelude):
     """Search for course in specific schelude
