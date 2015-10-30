@@ -2,6 +2,9 @@
 
 Current version: 1.0
 
+System requirements:
+  Python 3 in PATH
+
 This is a hobby project to test out various things including parsing things out of a HTML page. 
 
 Also there might be some school schelude creating automation happening.
