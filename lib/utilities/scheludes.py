@@ -113,7 +113,7 @@ def getScheludes(uniURL, scheludeListURL):
         if( not scheludePage ):
             print("Skipping invalid page")
             continue
-        print(item.name)
+        #print(item.name)
 
         # save to file to save internet usage
         try:

@@ -26,7 +26,8 @@ def getScheludeLinks(scheludeListUrl):
     
     page = html.getHTML(scheludeListUrl)
     if(page == ""):
-        print("Empty page")
+        #print("Empty page")
+        pass
 
     findString = " ".join( linksCssPath )
     linkItems = html.listifyHTML(page, "</a>", findString)

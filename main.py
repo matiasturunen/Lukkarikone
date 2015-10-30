@@ -12,10 +12,11 @@ from lib.utilities import debug
 from lib.models import Link
 import re
 import os
+import configparser
 
-
-uniURL = "https://uni.lut.fi"
-scheludeListURL = uniURL + "/fi/lukujarjestykset1"
+# global config
+CONFIG = configparser.ConfigParser()
+CONFIG.read("settings.ini")
 
 def printMenu():
     print("""
@@ -42,7 +43,7 @@ def menu():
 
         elif (option == "2"):
             print("Loading...")
-            sche = scheludes.getScheludes(uniURL, scheludeListURL)
+            sche = scheludes.getScheludes(CONFIG["WEB"]["uniURL"], CONFIG["WEB"]["scheludelistUrl"])
             print("Loading complete!")
 
         elif (option == "3"):
@@ -63,15 +64,19 @@ def menu():
             print("")
             debug.printList(matched)
 
+def makeDirectories():
+    """ Creates all directories what are needed to save
+        schelude files locally
+    """
+    dirs = ["scheludes", "scheludes/objects"]
 
+    for dirname in dirs:
+        if (not os.path.exists(dirname)):
+            os.makedirs(dirname)
+        
 
 def main():
-    # local = True    # set False to load scheludes from internet
-    # if ( local ):
-    #     sche = scheludes.getLocalScheludesHTML()
-    #     scheludes.saveScheludes(sche)
-    # else:
-    #     sche = scheludes.getScheludes(uniURL, scheludeListURL)
+    makeDirectories()
     menu()
 
 if __name__ == '__main__':
