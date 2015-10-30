@@ -122,6 +122,7 @@ def saveSchelude(schelude):
 
 def objectifySchelude(scheludePage, scheludeName):
     """Convert html type scheludepage to objects for easier use
+        This is basically a parser
 
         returns list containing all courses as objects
     """
@@ -151,7 +152,7 @@ def objectifySchelude(scheludePage, scheludeName):
         table = table.strip()                 # try stripping whitespace
         table = table.replace("\n", "")       # remove all linebreaks
         table = table.replace("</td>", ";")   # replace </td> with ;
-        table = table.replace("</tr>", "|\n") # replace </tr> with | and newline
+        table = table.replace("</tr>", "|") # replace </tr> with | and newline
         table = html.stripTags(table)         # strip all remaining html tags
         table = re.sub(r' {2,}', " ", table)  # replace all whitespace sequences 
         
@@ -213,4 +214,35 @@ def objectifySchelude(scheludePage, scheludeName):
     schelude.courses = courseList
 
     return schelude
-        
+
+def findCourses(searchRule, schelude):
+    """Search for course in specific schelude
+
+        Keyword arguments:
+        searchRule -- Rule which is used for searching
+        schelude -- schelude object
+    """  
+
+    matched = []
+    for course in schelude.courses:
+        if (course.name != None and searchRule in course.name):
+            matched.append(course)
+        elif (course.code != None and searchRule in course.code):
+            matched.append(course)
+
+    return matched
+
+def findAllCourses(searchRule, scheludes):
+    """Search for courses in all scheludes
+
+        Keyword arguments:
+        searchRule -- Rule which is used for searching
+        scheludes -- schelude object list
+    """
+
+    matched = []
+    for schelude in scheludes:
+        courses = findCourses(searchRule, schelude)
+        matched.extend(courses)
+
+    return matched

@@ -58,6 +58,17 @@ class Course:
         self.code = code
         self.name = name
 
+    def __str__(self):
+        r = ""
+        r += "Course name: {0}\n".format(self.name)
+        r += "Course code: {0}\n".format(self.code)
+        r += "Lessons: \n"
+        for lesson in self.lessons:
+            r += lesson.__str__(2)
+            r += "\n"
+
+        return r
+
     def toDict(self):
         arr = {
             "code": self.code,
@@ -86,6 +97,19 @@ class Lesson:
 
     def __init__(self):
         self.week = 0
+
+    def __str__(self, indent=0):
+        r = ""
+        r += "{1}Type: {0}\n".format( self.lessonType, " "*indent )
+        r += "{1}Period: {0}\n".format( self.period, " "*indent )
+        r += "{1}Weeks: {0}\n".format( self.week, " "*indent )
+        r += "{1}Day: {0}\n".format( self.dayOfWeek, " "*indent )
+        r += "{1}Starts: {0}\n".format( self.startTime, " "*indent )
+        r += "{1}Ends: {0}\n".format( self.endTime, " "*indent )
+        r += "{1}Lecture hall: {0}\n".format( self.room, " "*indent )
+        r += "{1}Description: {0}\n".format( self.description, " "*indent )
+
+        return r
 
     def toDict(self):
         arr = {
