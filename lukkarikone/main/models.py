@@ -1,3 +1,6 @@
+from django.db import models
+import json
+
 # ------------------------------------------------------------------------------
 # Name:        models.py
 # Purpose:     Contains all models in this app
@@ -7,7 +10,7 @@
 # Created:     25.09.2015
 # Copyright:   (c) Matias 2015
 # ------------------------------------------------------------------------------
-import json
+
 
 class Link:
 
@@ -21,14 +24,19 @@ class Link:
     def __str__(self):
         return (self.name + "\n " + self.url)
 
-class Schelude:
+class LessonType(models.Model):
+    name = models.CharField(max_length=20)
+    
+class Period(models.Model):
+    number = models.SmallIntegerField()
+    
 
-    name = ""
-    courses = []
+class Schelude(models.Model):
 
-    def __init__(self, name=""):
-        self.name = name
-
+    name = models.CharField(max_length=200)
+    
+    #needs to be reworked
+    """
     def saveToFile(self):
         file = open("scheludes/objects/" + self.name + ".json", "w", encoding="UTF-8")
         file.write(json.dumps(self.toDict(), indent=2))
@@ -46,17 +54,16 @@ class Schelude:
 
         arr["courses"] = cours
         return arr
+    """
 
-class Course:
+class Course(models.Model):
 
-    code = ""
-    name = ""
-    lessons = [] # list of Lesson objects
+    code = models.CharField(max_length=20)
+    name = models.CharField(max_length=200)
+    schelude = models.ForeignKey(Schelude)
 
-    def __init__(self, code="", name=""):
-        self.code = code
-        self.name = name
-
+    # needs to be reworked!!!
+    """
     def __str__(self):
         r = ""
         r += "Course name: {0}\n".format(self.name)
@@ -68,6 +75,8 @@ class Course:
 
         return r
 
+    
+    
     def toDict(self):
         arr = {
             "code": self.code,
@@ -82,21 +91,23 @@ class Course:
         arr["lessons"] = les
 
         return arr
+    """
 
-class Lesson:
+class Lesson(models.Model):
 
-    lessonType = ""     # lesson type
-    period = 0          # period number
-    week = 0            # week number
-    dayOfWeek = None    # Day
-    startTime = 0       # starting hour
-    endTime = 0         # ending houd
-    room = None         # room name or number
-    description = None  # description
-    name = ""
+    lessonType = models.ForeignKey(LessonType)
+    period = models.ManyToManyField(Period)
+    week = models.CharField(max_length=200)
+    dayOfWeek = models.CharField(max_length=20)
+    startTime = models.TimeField()
+    endTime = models.TimeField()
+    room = models.CharField(max_length=200)
+    description = models.TextField()
+    name = models.CharField(max_length=200)
+    course = models.ForeignKey(Course)
 
-    def __init__(self):
-        self.week = 0
+    # needs to be reworked!!!!
+    """
 
     def __str__(self, indent=0):
         r = ""
@@ -125,3 +136,5 @@ class Lesson:
             "name": self.name
         }
         return arr
+    """
+    
