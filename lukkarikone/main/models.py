@@ -28,7 +28,12 @@ class LessonType(models.Model):
     name = models.CharField(max_length=20)
     
 class Period(models.Model):
+    # period number on normal periods,
+    # week number on intensive courses
     number = models.SmallIntegerField()
+    
+    # period type, can be "Intensive" or "Normal". Default is "None"
+    type = models.CharField(max_length=10)
     
 
 class Schelude(models.Model):
@@ -97,14 +102,14 @@ class Lesson(models.Model):
 
     lessonType = models.ForeignKey(LessonType)
     period = models.ManyToManyField(Period)
-    week = models.CharField(max_length=200)
-    dayOfWeek = models.CharField(max_length=20)
-    startTime = models.TimeField()
-    endTime = models.TimeField()
-    room = models.CharField(max_length=200)
-    description = models.TextField()
-    name = models.CharField(max_length=200)
-    course = models.ForeignKey(Course)
+    week = models.CharField(max_length=200, blank=True, null=True)
+    dayOfWeek = models.CharField(max_length=20, blank=True, null=True)
+    startTime = models.TimeField(null=True)
+    endTime = models.TimeField(null=True)
+    room = models.CharField(max_length=200, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    name = models.CharField(max_length=200, blank=True, null=True)
+    course = models.ForeignKey(Course, null=True)
 
     # needs to be reworked!!!!
     """
