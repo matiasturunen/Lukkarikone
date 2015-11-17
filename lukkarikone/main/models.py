@@ -27,6 +27,9 @@ class Link:
 class LessonType(models.Model):
     name = models.CharField(max_length=20)
     
+    def __str__(self):
+        return self.name + " " + str(self.pk)
+    
 class Period(models.Model):
     # period number on normal periods,
     # week number on intensive courses
@@ -35,10 +38,16 @@ class Period(models.Model):
     # period type, can be "Intensive" or "Normal". Default is "None"
     type = models.CharField(max_length=10)
     
+    def __str__(self):
+        return self.type
+    
 
 class Schelude(models.Model):
 
     name = models.CharField(max_length=200)
+    
+    def __str__(self):
+        return self.name + " " + str(self.pk)
     
     #needs to be reworked
     """
@@ -66,6 +75,9 @@ class Course(models.Model):
     code = models.CharField(max_length=20)
     name = models.CharField(max_length=200)
     schelude = models.ForeignKey(Schelude)
+    
+    def __str__(self):
+        return self.name + " " + self.code + " " + str(self.pk)
 
     # needs to be reworked!!!
     """
@@ -111,10 +123,9 @@ class Lesson(models.Model):
     name = models.CharField(max_length=200, blank=True, null=True)
     course = models.ForeignKey(Course, null=True)
 
-    # needs to be reworked!!!!
-    """
+    
 
-    def __str__(self, indent=0):
+    def strAll(self, indent=0):
         r = ""
         r += "{1}Name: {0}\n".format( self.name, " "*indent )
         r += "{1}Type: {0}\n".format( self.lessonType, " "*indent )
@@ -127,7 +138,14 @@ class Lesson(models.Model):
         r += "{1}Description: {0}\n".format( self.description, " "*indent )
 
         return r
+        
+    def __str__(self):
+        return self.name
+        
+    
 
+    # needs to be reworked!!!!
+    """
     def toDict(self):
         arr = {
             "lessonType": self.lessonType,
