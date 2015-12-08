@@ -3,6 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from .forms import SimpleSearchForm
 from .search import finder
+from .models import Lesson
 
 
 def indexView(request):
@@ -27,24 +28,29 @@ def searchSimpleScheludes(request):
     # do simple searching
     # search options in POST
     
+    template_name = 'main/search.html'
+    
     form = SimpleSearchForm()
     if request.method == "POST":
         form = SimpleSearchForm(request.POST)
         if form.is_valid:
             asd=""
             
-            result = finder.findCourseByName(
+            results = finder.findCourseByName(
                 request.POST["course_name"], 
-                request.POST["course_code"], 
-                request.POST.getlist("scheludes")
+                request.POST["course_code"]
             )
-            for x in result:
-                asd+="<br>"+x.__str__()
-            return HttpResponse("searched!!" + asd) 
+
+            return render(request, 
+                template_name, {
+                'form': form,
+                'errors': [],
+                'results': results,
+            })
         
     errors = form.errors or None # form not submitted or it has errors
     return render(request, 
-        'main/search.html', {
+        template_name, {
         'form': form,
         'errors': errors,
     })

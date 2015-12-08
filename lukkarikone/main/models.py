@@ -28,7 +28,7 @@ class LessonType(models.Model):
     name = models.CharField(max_length=20)
     
     def __str__(self):
-        return self.name + " " + str(self.pk)
+        return self.name
     
 class Period(models.Model):
     # period number on normal periods,
@@ -39,7 +39,8 @@ class Period(models.Model):
     type = models.CharField(max_length=10)
     
     def __str__(self):
-        return self.type
+        return ""
+        #return self.type
     
 
 class Schelude(models.Model):
@@ -47,7 +48,7 @@ class Schelude(models.Model):
     name = models.CharField(max_length=200)
     
     def __str__(self):
-        return self.name + " " + str(self.pk)
+        return self.name
     
     #needs to be reworked
     """
@@ -77,8 +78,27 @@ class Course(models.Model):
     schelude = models.ForeignKey(Schelude)
     
     def __str__(self):
-        return self.name + " " + self.code + " " + str(self.pk)
-
+        return self.name + " - " + self.code
+    
+    
+    def getLessons(self):
+        return Lesson.objects.filter(course=self.pk)
+        
+    
+    def lessonsTable(self):
+        lessons = self.getLessons()
+        
+        if (len(lessons) == 0):
+            return ""
+        
+        tableHTML = '<table class="table table-hover table-bordered table-condensed">'
+        tableHTML += lessons[0].tableHeaders()
+        for lesson in lessons:
+            tableHTML += lesson.tableRow()
+        tableHTML += "</table>"
+        
+        return tableHTML
+        
     # needs to be reworked!!!
     """
     def __str__(self):
@@ -122,7 +142,6 @@ class Lesson(models.Model):
     description = models.TextField(blank=True, null=True)
     name = models.CharField(max_length=200, blank=True, null=True)
     course = models.ForeignKey(Course, null=True)
-
     
 
     def strAll(self, indent=0):
@@ -139,10 +158,46 @@ class Lesson(models.Model):
 
         return r
         
+    
+    # for templates
+    def tableHeaders(self):
+        r = "<tr>"
+        r += "<th>{0}</th>".format( "Name" )
+        r += "<th>{0}</th>".format( "Type" )
+        r += "<th>{0}</th>".format( "Period" )
+        r += "<th>{0}</th>".format( "Weeks" )
+        r += "<th>{0}</th>".format( "Day" )
+        r += "<th>{0}</th>".format( "Starts" )
+        r += "<th>{0}</th>".format( "Ends" )
+        r += "<th>{0}</th>".format( "Room" )
+        r += "<th>{0}</th>".format( "Description" )
+        r += "</tr>"
+        
+        return r
+    
+    
+    # for templates
+    def tableRow(self):
+        #per = self.period
+        per = ""
+        r = "<tr>"
+        r += "<td>{0}</td>".format( self.name )
+        r += "<td>{0}</td>".format( self.lessonType )
+        r += "<td>{0}</td>".format( per )
+        r += "<td>{0}</td>".format( self.week )
+        r += "<td>{0}</td>".format( self.dayOfWeek )
+        r += "<td>{0}</td>".format( self.startTime )
+        r += "<td>{0}</td>".format( self.endTime )
+        r += "<td>{0}</td>".format( self.room )
+        r += "<td>{0}</td>".format( self.description )
+        r += "</tr>"
+        
+        return r
+    
+        
     def __str__(self):
         return self.name
         
-    
 
     # needs to be reworked!!!!
     """
