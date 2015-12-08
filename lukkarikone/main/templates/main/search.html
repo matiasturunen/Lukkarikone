@@ -1,3 +1,9 @@
+	
+	<!-- Basic HTML stuff (title, head, beginning of body) -->
+	{% include 'main/structure/base_tpl_top.html' %}
+	<!-- Navigation -->
+	{% include 'main/structure/navbar.html' %}	
+	
 	<form action="" method="post" role="form">
 		{% csrf_token %}
 
@@ -11,3 +17,9 @@
 		<button type="submit" class="btn btn-success">OK</button>
 	
 	</form>
+
+
+	
+	
+	{% include 'main/structure/base_tpl_bottom.html' %}
+	

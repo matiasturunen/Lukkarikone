@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from .forms import SimpleSearchForm
+from .search import finder
 
 
 def indexView(request):
@@ -30,8 +31,16 @@ def searchSimpleScheludes(request):
     if request.method == "POST":
         form = SimpleSearchForm(request.POST)
         if form.is_valid:
-            #redirect to the url where you'll process the input
-            return HttpResponse("searched!!") # insert reverse or url
+            asd=""
+            
+            result = finder.findCourseByName(
+                request.POST["course_name"], 
+                request.POST["course_code"], 
+                request.POST.getlist("scheludes")
+            )
+            for x in result:
+                asd+="<br>"+x.__str__()
+            return HttpResponse("searched!!" + asd) 
         
     errors = form.errors or None # form not submitted or it has errors
     return render(request, 
