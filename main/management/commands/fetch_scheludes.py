@@ -9,6 +9,15 @@ class Command(BaseCommand):
         print("Hangling...")
         # flush all tables related to schelude
         Schelude.objects.all().delete()
+        
         # get new scheludes
-        ok = parser.fetchScheludes()
+        times = 10
+        x = 1
+        while x < times:
+            print("Attempt", x)
+            x += 1
+            ok = parser.fetchScheludes()
+            if ((x == times) or (ok == True)):
+                break
+            
         self.stdout.write('Hangling done. Success: {0}'.format(ok))
