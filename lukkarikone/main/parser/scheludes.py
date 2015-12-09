@@ -9,11 +9,11 @@
 # ------------------------------------------------------------------------------
 import os
 import re
-from lib.utilities import links, html
-from lib.utilities import debug
-from lib.models import Course, Lesson, Schelude
+from . import links, html
+from ..models import Course, Lesson, Schelude, Period, LessonType
 from bs4 import BeautifulSoup
 import json
+import datetime
 
 
 def getLocalScheludeNames(folder, prefix=""):
@@ -109,6 +109,7 @@ def getScheludes(uniURL, scheludeListURL):
     linklist = links.getScheludeLinks(scheludeListURL)
     scheludeList = []
     for item in linklist:
+        
         scheludePage = html.getHTML(uniURL + item.url)
         if( not scheludePage ):
             print("Skipping invalid page")
@@ -116,12 +117,15 @@ def getScheludes(uniURL, scheludeListURL):
         #print(item.name)
 
         # save to file to save internet usage
+        # not in django version
+        """
         try:
             f = open("scheludes/scheludePage_" + item.name, "w")
             f.write(scheludePage)
             f.close()
         except Exception as e:
             pass
+        """
 
         scheludeList.append( parseScheludeHTML( scheludePage, item.name ) )
 
@@ -159,6 +163,11 @@ def parseScheludeHTML(scheludePage, scheludeName):
     # extract individual courses from scheludepages
     courses = html.listifyHTML(scheludePage, splitProg, "body")
     
+    # create new schelude
+    schelude = Schelude()
+    schelude.name = scheludeName
+    schelude.save()
+    
     courseList = []
     for course in courses:
 
@@ -169,6 +178,12 @@ def parseScheludeHTML(scheludePage, scheludeName):
 
         if (len(spreadsheet) == 0):
             continue
+        
+        courseObj = Course()
+        courseObj.name = ""     # default value
+        courseObj.code = ""     # default value
+        courseObj.schelude = schelude
+        courseObj.save()
 
         # there is actualy only one item in the spreadsheet
         table = spreadsheet[0]
@@ -177,15 +192,13 @@ def parseScheludeHTML(scheludePage, scheludeName):
         table = table.strip()                 # try stripping whitespace
         table = table.replace("\n", "")       # remove all linebreaks
         table = table.replace("</td>", ";")   # replace </td> with ;
-        table = table.replace("</tr>", "|") # replace </tr> with | and newline
+        table = table.replace("</tr>", "|")   # replace </tr> with | and newline
         table = html.stripTags(table)         # strip all remaining html tags
         table = re.sub(r' {2,}', " ", table)  # replace all whitespace sequences 
         
         tableRows = table.split("|")
 
         rowNumber = 0
-        courseCode = ""
-        courseName = ""
         lessons = []
         for tableRow in tableRows:  # each row is one lesson
             tableCells = tableRow.split(";")
@@ -211,36 +224,88 @@ def parseScheludeHTML(scheludePage, scheludeName):
                 continue
 
             # get course name and code only once
-            if (courseCode == ""):
-                courseCode = getCourseNameAndCode(tableCells[0])["code"]
-            if (courseName == ""):
-                courseName = getCourseNameAndCode(tableCells[0])["name"]
+            courseObjChanged = False
+            if (courseObj.code == ""):
+                courseObj.code = getCourseNameAndCode(tableCells[0])["code"]
+                courseObjChanged = True
+            if (courseObj.name == ""):
+                courseObj.name = getCourseNameAndCode(tableCells[0])["name"]
+                courseObjChanged = True
+                
+            if (courseObjChanged):
+                courseObj.save()
 
             nameAndType = getLessonTypeAndName(tableCells[0])
+            
+            # get lessontype code right
+            # codes
+            # 1 - Lecture / Luento
+            # 2 - Exercise / Harjoitus
+            # 3 - Combination of 1 and 2015
+            # 4 - Other / Muu
+            typeCode = 4    # default
+            if (nameAndType["type"] != ""):
+                # try getting lessontype to be something else than other...
+                pass
+            else:
+                pass # again
+            
+            #try:
+            type = LessonType.objects.get(pk=typeCode)
+            #except LessonType.DoesNotExist:
+            #    raise Exception("Lessontype not found!!")
+            #except:
+            #    raise Exception("Unknown error!!!")
+            
+            # get period number right
+            periodType = "None" # default
+            periodNumber = 1    # default
+            
+            matchPeriod = re.search(r'^\s*periodi\s*([0-4])\s*$', tableCells[1].lower())
+            if (matchPeriod):
+                periodType = "Normal"
+                periodNumber = matchPeriod.group(1)
+            else:
+                # it was no "normal" period, looking for intensive
+                matchIntensive = re.search(r'^\s*int.vko\s*([0-9]+)\s*$', tableCells[1].lower())
+                if (matchIntensive):
+                    periodType = "Intensive"
+                    periodNumber = matchIntensive.group(1)
+                else:
+                    # not normal nor intensive, going to defaults
+                    # defaults defined above...
+                    pass
+            
+            try:
+                period = Period.objects.filter(number=periodNumber, type=periodType)
+            except Period.DoesNotExist:
+                # create new instance of it
+                period = Period()
+                period.number = periodNumber
+                period.type = periodType
+                period.save()
+            
 
             # create new lesson
             lesson = Lesson()
-            lesson.lessonType = nameAndType["type"]
+            
+            lesson.lessonType = type
             lesson.name = nameAndType["name"]
-            lesson.period = tableCells[1]
             lesson.week = tableCells[2]
             lesson.dayOfWeek = tableCells[3]
-            lesson.startTime = tableCells[4]
-            lesson.endTime = tableCells[5]
+            lesson.startTime = getParsedTime(tableCells[4])
+            lesson.endTime = getParsedTime(tableCells[5])
             lesson.room = tableCells[6]
             lesson.description = tableCells[7]
+            lesson.course = courseObj
+            
+            # save lesson so we can add manyToNany relation to it
+            lesson.save()
+            lesson.period = period
+            lesson.save()
+            print("Lesson saved")
 
-            lessons.append(lesson)
-
-        courseObj = Course(courseCode, courseName)
-        courseObj.lessons = lessons
-
-        courseList.append(courseObj)
-
-    schelude = Schelude(scheludeName)
-    schelude.courses = courseList
-
-    return schelude
+    return True
 
 
 def parseScheludeJSON(jsonString):
@@ -330,6 +395,17 @@ def getCourseNameAndCode(lessonNameCode):
         "name": name,
         "code": code
     }
+    
+
+def getParsedTime(hours=0, minutes=0):
+    try:
+        hours = int(hours)
+        minutes = int(minutes)
+    except ValueError:
+        return datetime.time(0,0)
+        
+    t = datetime.time(hours, minutes)
+    return t
 
 
 def findCourses(searchRule, schelude):

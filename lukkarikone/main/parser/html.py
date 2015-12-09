@@ -9,8 +9,7 @@
 # ------------------------------------------------------------------------------
 import urllib.request as request
 import re
-from lib.static.htmldom import htmldom
-from lib.utilities import debug
+from .htmldom import htmldom
 from bs4 import BeautifulSoup
 
 

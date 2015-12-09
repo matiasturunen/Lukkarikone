@@ -1,0 +1,34 @@
+[
+  {
+    "model": "main.Period",
+    "pk": 1,
+    "fields": {
+      "number": 1,
+      "type": "Normal"
+    }
+  },
+  {
+    "model": "main.Period",
+    "pk": 2,
+    "fields": {
+      "number": 2,
+      "type": "Normal"
+    }
+  },
+  {
+    "model": "main.Period",
+    "pk": 3,
+    "fields": {
+      "number": 3,
+      "type": "Normal"
+    }
+  },
+  {
+    "model": "main.Period",
+    "pk": 4,
+    "fields": {
+      "number": 4,
+      "type": "Normal"
+    }
+  }
+]

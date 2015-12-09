@@ -8,10 +8,9 @@
 # Copyright:   (c) Matias 2015
 # ------------------------------------------------------------------------------
 import re
-from lib.static.htmldom import htmldom
-from lib.models import Link
-from lib.utilities import html
-from lib.utilities import debug
+from .htmldom import htmldom
+from ..models import Link
+from . import html
 
 
 def getScheludeLinks(scheludeListUrl):
