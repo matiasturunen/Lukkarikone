@@ -3,4 +3,4 @@ __pycache__/*
 *.py[cod]
 scheludes/*
 *.sqlite*
-*settings_production.py
+*/lukkarikone/settings/__init__.py
