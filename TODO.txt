@@ -1,0 +1,4 @@
+TODO:
+Checkbox next to lesson for adding it to personal schelude
+Personal schelude
+Advanced search
