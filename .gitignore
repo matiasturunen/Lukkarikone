@@ -4,3 +4,4 @@ __pycache__/*
 scheludes/*
 *.sqlite*
 */lukkarikone/settings/__init__.py
+*/lukkarikone/staticroot/*
