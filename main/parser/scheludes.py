@@ -128,8 +128,7 @@ def getScheludes(uniURL, scheludeListURL):
         """
 
         scheludeList.append( parseScheludeHTML( scheludePage, item.name ) )
-        # debug break
-        return scheludeList
+        
 
     return scheludeList
 
