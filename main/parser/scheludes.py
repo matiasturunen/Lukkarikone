@@ -128,6 +128,8 @@ def getScheludes(uniURL, scheludeListURL):
         """
 
         scheludeList.append( parseScheludeHTML( scheludePage, item.name ) )
+        # debug break
+        return scheludeList
 
     return scheludeList
 
@@ -169,6 +171,8 @@ def parseScheludeHTML(scheludePage, scheludeName):
     schelude.save()
     
     courseList = []
+    lessonAmount = 0
+    courseAmount = 0
     for course in courses:
 
         soup = BeautifulSoup(course)
@@ -184,6 +188,7 @@ def parseScheludeHTML(scheludePage, scheludeName):
         courseObj.code = ""     # default value
         courseObj.schelude = schelude
         courseObj.save()
+        courseAmount += 1
 
         # there is actualy only one item in the spreadsheet
         table = spreadsheet[0]
@@ -192,7 +197,7 @@ def parseScheludeHTML(scheludePage, scheludeName):
         table = table.strip()                 # try stripping whitespace
         table = table.replace("\n", "")       # remove all linebreaks
         table = table.replace("</td>", ";")   # replace </td> with ;
-        table = table.replace("</tr>", "|")   # replace </tr> with | and newline
+        table = table.replace("</tr>", "|")   # replace </tr> with |
         table = html.stripTags(table)         # strip all remaining html tags
         table = re.sub(r' {2,}', " ", table)  # replace all whitespace sequences 
         
@@ -241,14 +246,40 @@ def parseScheludeHTML(scheludePage, scheludeName):
             # codes
             # 1 - Lecture / Luento
             # 2 - Exercise / Harjoitus
-            # 3 - Combination of 1 and 2015
-            # 4 - Other / Muu
+            # 3 - Combination of 1 and 2
+            # 4 - Other / Muu - DEFAULT
+            # 5 - Seminaari
+            # 6 - Demoluento
+            # 7 - intensive
+            typeCodes = {
+                "L": 1,
+                "H": 2,
+                "HR": 2,
+                "L/H": 3,
+                "H/L": 3,
+                "L+H": 3,
+                "H+L": 3,
+                "S": 5,
+                "DL": 6,
+                "INT": 7
+                
+            }
             typeCode = 4    # default
             if (nameAndType["type"] != ""):
                 # try getting lessontype to be something else than other...
-                pass
+                try:
+                    typeCode = typeCodes[nameAndType["type"]]
+                except KeyError:
+                    # type not found, use default
+                    print ("Lessontype {0} not found.".format(nameAndType["type"]))
+                    pass
+                except Exception as e:
+                    # Other error happened
+                    print ("Error: " + e)
+                
             else:
-                pass # again
+                # does this even need an else block?
+                pass
             
             #try:
             type = LessonType.objects.get(pk=typeCode)
@@ -303,8 +334,10 @@ def parseScheludeHTML(scheludePage, scheludeName):
             lesson.save()
             lesson.period = period
             lesson.save()
-            print("Lesson saved")
-
+            
+            lessonAmount += 1
+    
+    print ("Added {0} lessons to {1} courses in schelude {2}.".format(lessonAmount, courseAmount, scheludeName))
     return True
 
 
@@ -368,6 +401,7 @@ def getLessonTypeAndName(lessonNameCode):
         splits2 = name.split("/")
         name = splits2[0]
         lessonType = splits2[1]
+        lessonType = lessonType.strip()
     else:
         lessonType = ""
 

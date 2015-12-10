@@ -26,5 +26,27 @@
     "fields": {
       "name": "Muu"
     }
+  },
+  {
+    "model": "main.LessonType",
+    "pk": 5,
+    "fields": {
+      "name": "Seminaari"
+    }
+  },
+  {
+    "model": "main.LessonType",
+    "pk": 6,
+    "fields": {
+      "name": "Demoluento"
+    }
+  },
+  {
+    "model": "main.LessonType",
+    "pk": 7,
+    "fields": {
+      "name": "Intensiivi"
+    }
   }
+  
 ]
