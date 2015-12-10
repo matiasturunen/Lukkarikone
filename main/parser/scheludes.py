@@ -158,12 +158,9 @@ def parseScheludeHTML(scheludePage, scheludeName):
         returns list containing all courses as objects
     """
 
-    # match all groups of underscore that are longer thar 10 chars
-    splitPattern = r'_{10,}'
-    splitProg = re.compile(splitPattern)
-
     # extract individual courses from scheludepages
-    courses = html.listifyHTML(scheludePage, splitProg, "body")
+    soup = BeautifulSoup(scheludePage)
+    courses = soup.find_all("table", "spreadsheet")
     
     # create new schelude
     schelude = Schelude()
@@ -175,12 +172,9 @@ def parseScheludeHTML(scheludePage, scheludeName):
     courseAmount = 0
     for course in courses:
 
-        soup = BeautifulSoup(course)
-        spreadsheet = soup.find_all("table", "spreadsheet")
-
         result = []
 
-        if (len(spreadsheet) == 0):
+        if (len(course) == 0):
             continue
         
         courseObj = Course()
@@ -190,18 +184,16 @@ def parseScheludeHTML(scheludePage, scheludeName):
         courseObj.save()
         courseAmount += 1
 
-        # there is actualy only one item in the spreadsheet
-        table = spreadsheet[0]
-
-        table = str(table)                    # convert to string
-        table = table.strip()                 # try stripping whitespace
-        table = table.replace("\n", "")       # remove all linebreaks
-        table = table.replace("</td>", ";")   # replace </td> with ;
-        table = table.replace("</tr>", "|")   # replace </tr> with |
-        table = html.stripTags(table)         # strip all remaining html tags
-        table = re.sub(r' {2,}', " ", table)  # replace all whitespace sequences 
+        # start parsing table
+        course = str(course)                    # convert to string
+        course = course.strip()                 # try stripping whitespace
+        course = course.replace("\n", "")       # remove all linebreaks
+        course = course.replace("</td>", ";")   # replace </td> with ;
+        course = course.replace("</tr>", "|")   # replace </tr> with |
+        course = html.stripTags(course)         # strip all remaining html tags
+        course = re.sub(r' {2,}', " ", course)  # replace all whitespace sequences 
         
-        tableRows = table.split("|")
+        tableRows = course.split("|")
 
         rowNumber = 0
         lessons = []
@@ -281,12 +273,8 @@ def parseScheludeHTML(scheludePage, scheludeName):
                 # does this even need an else block?
                 pass
             
-            #try:
+            # try/except would be nice for this, but if we can't find LessonType saving lesson is impossible
             type = LessonType.objects.get(pk=typeCode)
-            #except LessonType.DoesNotExist:
-            #    raise Exception("Lessontype not found!!")
-            #except:
-            #    raise Exception("Unknown error!!!")
             
             # get period number right
             periodType = "None" # default
