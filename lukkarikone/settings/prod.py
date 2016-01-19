@@ -16,7 +16,7 @@ SECURE_SSL_REDIRECT = False         # Needs SSL
 CSRF_COOKIE_HTTPONLY = False
 
 # this may need some work
-ALLOWED_HOSTS = [".matiasturunen.koding.io", ""]
+ALLOWED_HOSTS = [".matiasturunen.koding.io", ".herokuapp.com"]
 
 # static files location
 STATIC_ROOT = "staticfiles"
