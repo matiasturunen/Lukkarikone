@@ -5,3 +5,4 @@ scheludes/*
 *.sqlite*
 */lukkarikone/settings/__init__.py
 */lukkarikone/staticroot/*
+staticfiles/*
