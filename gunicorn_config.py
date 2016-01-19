@@ -1,13 +1,11 @@
 # gunicorn config
 
-from django.core import management
+from subprocess import call
+
+call(["python", "manage.py", "migrate"])
+call(["python", "manage.py", "loaddata",  "main/fixtures/*"])
+call(["python", "manage.py", "fetch_scheludes"])
 
 bind = ["127.0.0.1:8000", "0.0.0.0:8080"]
 
 
-def pre_fork(server, worker):
-    #management.call_command("migrate")
-    #management.call_command("loaddata", "main/fixtures/*")
-    #management.call_command("fetch_scheludes")
-    
-    pass

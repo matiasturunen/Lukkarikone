@@ -1,1 +1,1 @@
-web: gunicorn --config gunicorn_config.py lukkarikone.wsgi 
+web: gunicorn --config gunicorn_config.py lukkarikone.wsgi
