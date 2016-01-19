@@ -19,5 +19,13 @@ CSRF_COOKIE_HTTPONLY = False
 ALLOWED_HOSTS = [".matiasturunen.koding.io", ""]
 
 # static files location
-STATIC_ROOT = "/home/matiasturunen/Web/lukkarikone-files"
-STATIC_URL = 'http://umkk434cba97.matiasturunen.koding.io/lukkarikone-files/'
+STATIC_ROOT = "staticfiles"
+
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
+
+# Simplified static file serving.
+# https://warehouse.python.org/project/whitenoise/
+
+STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'

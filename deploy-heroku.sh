@@ -1,4 +1,4 @@
 python manage.py migrate
-./add-fixtures.sh
+python manage.py loaddata main/fixtures/*
 python manage.py fetch_scheludes
-./run-dev-server.sh
+python manage.py runserver 0.0.0.0:8000

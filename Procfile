@@ -1,1 +1,1 @@
-web: ./deploy-heroku.sh
+web: gunicorn --config gunicorn_config.py lukkarikone.wsgi 
