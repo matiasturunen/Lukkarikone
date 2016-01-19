@@ -422,11 +422,12 @@ def getParsedTime(hours=0, minutes=0):
     try:
         hours = int(hours)
         minutes = int(minutes)
+        
+        return datetime.time(hours, minutes)
+        
     except ValueError:
         return datetime.time(0,0)
         
-    t = datetime.time(hours, minutes)
-    return t
 
 
 def findCourses(searchRule, schelude):
