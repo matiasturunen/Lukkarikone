@@ -135,7 +135,7 @@ class Lesson(models.Model):
     lessonType = models.ForeignKey(LessonType)
     period = models.ManyToManyField(Period)
     week = models.CharField(max_length=200, blank=True, null=True)
-    dayOfWeek = models.CharField(max_length=20, blank=True, null=True)
+    dayOfWeek = models.CharField(max_length=200, blank=True, null=True)
     startTime = models.TimeField(null=True)
     endTime = models.TimeField(null=True)
     room = models.CharField(max_length=200, blank=True, null=True)
