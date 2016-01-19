@@ -1,6 +1,16 @@
-# .prod for production
-# .dev for development
-from .prod import * 
+
+import os
+
+dev = os.environ.get("DEV", False)
+
+if (dev == "True"):
+    # development settings
+    from .dev import * 
+    print ("Using development settings!!")
+else:
+    # production settings
+    from .prod import * 
+    print ("Using production settings!!")
 
 ##### DJANGO SECRETS
-SECRET_KEY = '%fei+drr=hp0)3k4g-d&&5nzdo*%8mu20@7#zdk@y=w)gc16z2'
+SECRET_KEY = os.environ.get("SECRET_KEY", "use_env_variable_as_secret_key")
