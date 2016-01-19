@@ -4,3 +4,5 @@ Personal schelude
 Advanced search
 
 ** Fix parsing for scheludes with more than 7 columns **
+
+** Remove previous scheludes from database AFTER loading new ones **
