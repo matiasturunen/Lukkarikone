@@ -1,0 +1,46 @@
+	
+	<!-- Basic HTML stuff (title, head, beginning of body) -->
+	{% include 'main/structure/base_tpl_top.html' %}
+	<!-- Navigation -->
+	{% include 'main/structure/navbar.html' %}	
+	
+<div class="container">
+Search for lessons
+	<form action="" method="post" role="form" class="form-horizontal">
+		{% csrf_token %}
+
+		{% for field in form %}
+			<div class="form-group">
+				<!-- {{ field.errors }} -->
+				<label for="{{ field.id_for_label }}" class="col-sm-2 control-label">{{ field.label }}</label>
+				<div class="col-sm-8">
+	            {{ field }}
+	            </div>
+			</div>
+		{% endfor %}
+
+	    <div class="form-group">
+            <div>
+                <button type="submit" class="btn btn-default">Search</button>
+            </div>
+        </div>
+	</form>
+</div>
+<div class="container">
+<br>
+<p class="bg-warning">Use at your own risk...</p>
+    <div class="list-group">
+        {% for result in results %}
+            <div class="list-group">
+                
+                    <h4 class="list-group-item-heading">{{ result }}</h4>
+                    {{ result.lessonsTable |safe }}
+                
+            </div>
+        {% endfor %}
+    </div>
+</div>
+	
+	
+	{% include 'main/structure/base_tpl_bottom.html' %}
+	
