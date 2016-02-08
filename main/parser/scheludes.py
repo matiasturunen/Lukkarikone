@@ -216,99 +216,28 @@ def parseScheludeHTML(scheludePage, scheludeName):
                 continue
             
             if (len(tableCells) < 8):
-                # we need all eight table columns
+                # we need at least eight table columns
                 continue
+            
+            lessonData = getLessonData(tableCells[0])
 
             # get course name and code only once
             courseObjChanged = False
             if (courseObj.code == ""):
-                courseObj.code = getCourseNameAndCode(tableCells[0])["code"]
+                courseObj.code = lessonData["code"]
                 courseObjChanged = True
             if (courseObj.name == ""):
-                courseObj.name = getCourseNameAndCode(tableCells[0])["name"]
+                courseObj.name = lessonData["name"]
                 courseObjChanged = True
                 
             if (courseObjChanged):
                 courseObj.save()
 
-            nameAndType = getLessonTypeAndName(tableCells[0])
-            
-            # get lessontype code right
-            # codes
-            # 1 - Lecture / Luento
-            # 2 - Exercise / Harjoitus
-            # 3 - Combination of 1 and 2
-            # 4 - Other / Muu - DEFAULT
-            # 5 - Seminaari
-            # 6 - Demoluento
-            # 7 - intensive
-            typeCodes = {
-                "L": 1,
-                "H": 2,
-                "HR": 2,
-                "L/H": 3,
-                "H/L": 3,
-                "L+H": 3,
-                "H+L": 3,
-                "S": 5,
-                "DL": 6,
-                "INT": 7
-                
-            }
-            typeCode = 4    # default
-            if (nameAndType["type"] != ""):
-                # try getting lessontype to be something else than other...
-                try:
-                    typeCode = typeCodes[nameAndType["type"]]
-                except KeyError:
-                    # type not found, use default
-                    print ("Lessontype {0} not found.".format(nameAndType["type"]))
-                    pass
-                except Exception as e:
-                    # Other error happened
-                    print ("Error: " + e)
-                
-            else:
-                # does this even need an else block?
-                pass
-            
-            # try/except would be nice for this, but if we can't find LessonType saving lesson is impossible
-            type = LessonType.objects.get(pk=typeCode)
-            
-            # get period number right
-            periodType = "None" # default
-            periodNumber = 1    # default
-            
-            matchPeriod = re.search(r'^\s*periodi\s*([0-4])\s*$', tableCells[1].lower())
-            if (matchPeriod):
-                periodType = "Normal"
-                periodNumber = matchPeriod.group(1)
-            else:
-                # it was no "normal" period, looking for intensive
-                matchIntensive = re.search(r'^\s*int.vko\s*([0-9]+)\s*$', tableCells[1].lower())
-                if (matchIntensive):
-                    periodType = "Intensive"
-                    periodNumber = matchIntensive.group(1)
-                else:
-                    # not normal nor intensive, going to defaults
-                    # defaults defined above...
-                    pass
-            
-            try:
-                period = Period.objects.filter(number=periodNumber, type=periodType)
-            except Period.DoesNotExist:
-                # create new instance of it
-                period = Period()
-                period.number = periodNumber
-                period.type = periodType
-                period.save()
-            
-
             # create new lesson
             lesson = Lesson()
             
-            lesson.lessonType = type
-            lesson.name = nameAndType["name"]
+            lesson.lessonType = lessonData["type"]
+            lesson.name = lessonData["name"]
             lesson.week = tableCells[2]
             lesson.dayOfWeek = tableCells[3]
             lesson.startTime = getParsedTime(tableCells[4])
@@ -319,7 +248,7 @@ def parseScheludeHTML(scheludePage, scheludeName):
             
             # save lesson so we can add manyToNany relation to it
             lesson.save()
-            lesson.period = period
+            lesson.period = getPeriod(tableCells[1])
             lesson.save()
             
             lessonAmount += 1
@@ -375,31 +304,8 @@ def parseScheludeJSON(jsonString):
     return schelude
 
 
-def getLessonTypeAndName(lessonNameCode):
-    """Extracts lesson type and name from string
-    """
-    if (" - " in lessonNameCode):
-        splits = lessonNameCode.split(" - ")
-        name = splits[1]
-    else:
-        name = lessonNameCode
-
-    if ("/" in name):
-        splits2 = name.split("/")
-        name = splits2[0]
-        lessonType = splits2[1]
-        lessonType = lessonType.strip()
-    else:
-        lessonType = ""
-
-    return {
-        "type": lessonType,
-        "name": name
-    }
-
-
-def getCourseNameAndCode(lessonNameCode):
-    """Extracts course name and code from string
+def getLessonData(lessonNameCode):
+    """Extracts lesson type, name and code from string
     """
     if (" - " in lessonNameCode):
         splits = lessonNameCode.split(" - ")
@@ -409,14 +315,63 @@ def getCourseNameAndCode(lessonNameCode):
         code = ""
         name = lessonNameCode
 
-    if ("/" in name):   # name contains lesson type, what we want to remove
-        name = name.split("/")[0]
+    if ("/" in name):
+        splits2 = name.split("/")
+        name = splits2[0]
+        lessonType = splits2[1]
+        lessonType = lessonType.strip()
+    else:
+        lessonType = ""
+        
+    # get lessontype code right
+    # codes - These are hardcoded fixtures
+    # 1 - Lecture / Luento
+    # 2 - Exercise / Harjoitus
+    # 3 - Combination of 1 and 2
+    # 4 - Other / Muu - DEFAULT
+    # 5 - Seminaari
+    # 6 - Demoluento
+    # 7 - intensive
+    typeCodes = {
+        "L": 1,
+        "H": 2,
+        "HR": 2,
+        "L/H": 3,
+        "H/L": 3,
+        "L+H": 3,
+        "H+L": 3,
+        "S": 5,
+        "DL": 6,
+        "INT": 7
+        
+    }
+    
+    typeCode = 4    # default
+    if (lessonType != ""):
+        # try getting lessontype to be something else than other...
+        try:
+            typeCode = typeCodes[lessonType]
+        except KeyError:
+            # type not found, use default
+            print ("Lessontype {0} not found.".format(lessonType))
+            pass
+        except Exception as e:
+            # Other error happened
+            print ("Error: " + e)
+        
+    else:
+        # does this even need an else block?
+        pass
+    
+    # try/except would be nice for this, but if we can't find LessonType saving lesson is impossible
+    type = LessonType.objects.get(pk=typeCode)
 
     return {
+        "type": type,
         "name": name,
         "code": code
     }
-    
+
 
 def getParsedTime(hours=0, minutes=0):
     try:
@@ -463,3 +418,34 @@ def findAllCourses(searchRule, scheludes):
 
     return matched
 
+def getPeriod(periodString): 
+    # get period number right
+    periodType = "None" # default
+    periodNumber = 1    # default
+    
+    matchPeriod = re.search(r'^\s*periodi\s*([0-4])\s*$', periodString.lower())
+    if (matchPeriod):
+        periodType = "Normal"
+        periodNumber = matchPeriod.group(1)
+    else:
+        # it was no "normal" period, looking for intensive
+        matchIntensive = re.search(r'^\s*int.vko\s*([0-9]+)\s*$', periodString.lower())
+        if (matchIntensive):
+            periodType = "Intensive"
+            periodNumber = matchIntensive.group(1)
+        else:
+            # not normal nor intensive, going to defaults
+            # defaults defined above...
+            pass
+    
+    try:
+        period = Period.objects.filter(number=periodNumber, type=periodType)
+    except Period.DoesNotExist:
+        # create new instance of it
+        period = Period()
+        period.number = periodNumber
+        period.type = periodType
+        period.save()
+    
+    return period
+    
