@@ -236,15 +236,35 @@ def parseScheludeHTML(scheludePage, scheludeName):
             # create new lesson
             lesson = Lesson()
             
+            # Lesson base information
             lesson.lessonType = lessonData["type"]
             lesson.name = lessonData["name"]
-            lesson.week = tableCells[2]
-            lesson.dayOfWeek = tableCells[3]
-            lesson.startTime = getParsedTime(tableCells[4])
-            lesson.endTime = getParsedTime(tableCells[5])
-            lesson.room = tableCells[6]
-            lesson.description = tableCells[7]
             lesson.course = courseObj
+            
+            if (len(tableCells) == 8):
+                # schelude has eight columns
+                lesson.week = tableCells[2]
+                lesson.dayOfWeek = tableCells[3]
+                lesson.startTime = getParsedTime(tableCells[4])
+                lesson.endTime = getParsedTime(tableCells[5])
+                lesson.room = tableCells[6]
+                lesson.description = tableCells[7]
+                
+            elif (len(tableCells) >= 9):
+                # schelude has nine columns
+                lesson.week = tableCells[3]
+                lesson.dayOfWeek = tableCells[4]
+                lesson.startTime = getParsedTime(tableCells[5])
+                lesson.endTime = getParsedTime(tableCells[6])
+                lesson.room = tableCells[7]
+                lesson.description = tableCells[8]
+                
+            else:
+                # How did you get here?
+                print ("How did you get here??")
+                print ("Empty course incoming!")
+                continue
+            
             
             # save lesson so we can add manyToNany relation to it
             lesson.save()

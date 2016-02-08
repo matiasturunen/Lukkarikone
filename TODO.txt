@@ -3,4 +3,3 @@ Checkbox next to lesson for adding it to personal schelude
 Personal schelude
 Advanced search
 
-** Fix parsing for scheludes with more than 7 columns **
