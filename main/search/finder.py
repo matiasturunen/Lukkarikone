@@ -7,8 +7,8 @@ def findCourseByName(name="", code="", scheludeIds=[]):
         scheludeIds = Schelude.objects.values_list("id", flat=True)
     
     c = Course.objects.filter(
-        Q( name__contains=name ),
-        Q( code__contains=code ),
+        Q( name__icontains=name ),
+        Q( code__icontains=code ),
         Q( schelude__in=scheludeIds )
     )
     return c
